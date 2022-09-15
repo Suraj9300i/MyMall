@@ -8,26 +8,19 @@ const productSchema = new mongoose.Schema(
       required: [true, "please enter product description"],
     },
     image: { type: String, required: [true, "please enter image location"] },
-    price: {
-      actualPrice: {
-        type: Number,
-        required: [true, "please enter price"],
-        default: 0,
-      },
-      discount: { type: Number, default: 0 },
-    },
+    price: { type: Number },
+    actualPrice: { type: Number, required: [true, "please enter actualPrice"] },
+    discount: { type: Number, default: 0 },
     categories: [{ type: String }],
-    ratings: {
-      average: { type: Number, default: 0 },
-      allReviews: [
-        {
-          user: { type: String, required: true },
-          rating: { type: Number, required: true },
-          body: { type: String, required: true },
-          date: { type: Date, default: Date.now },
-        },
-      ],
-    },
+    averageRatings: { type: Number, default: 0 },
+    allReviews: [
+      {
+        user: { type: String, required: true },
+        rating: { type: Number, required: true },
+        body: { type: String, required: true },
+        date: { type: Date, default: Date.now },
+      },
+    ],
     stocks: { type: Number, default: 0 },
     transactions: {
       totalSells: { type: Number, default: 0 },

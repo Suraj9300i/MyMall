@@ -1,8 +1,13 @@
 const productModel = require("../models/productModel");
+const APIFeatures = require("../utils/apiFeatures");
 
-const createNewProduct = async (req, res) => {
+exports.createNewProduct = async (req, res) => {
   try {
-    const product = new productModel(req.body);
+    const { actualPrice, discount } = req.body;
+    const product = new productModel({
+      ...req.body,
+      price: actualPrice - (actualPrice * discount) / 100,
+    });
     const data = await product.save();
     res.status(200).json({
       message: "success",
@@ -15,7 +20,7 @@ const createNewProduct = async (req, res) => {
   }
 };
 
-const getProduct = async (req, res) => {
+exports.getProduct = async (req, res) => {
   try {
     const product = await productModel.findById(req.params.id);
     res.status(200).json({
@@ -27,17 +32,54 @@ const getProduct = async (req, res) => {
   }
 };
 
-const getAllProduct = async (req, res) => {
+exports.getAllProduct = async (req, res) => {
   try {
-    const products = await productModel.find();
-    console.log(products);
+    const data = await productModel.find();
+    const originalProducts = [...data];
+    const products = originalProducts.map(
+      (product) =>
+        new Object({
+          name: product.name,
+          description: product.description,
+          imageSrc: product.image,
+          price: product.price,
+          id: product._id,
+        })
+    );
     res.status(200).json({
       status: "success",
+      totalProducts: products.length,
       products,
     });
   } catch (err) {
-    res.status(500).json({ message: "something went wrongs" });
+    res.status(500).json({ message: "something went wrong" });
   }
 };
 
-module.exports = { createNewProduct, getProduct, getAllProduct };
+exports.searchProduct = async (req, res) => {
+  console.log("search", req.query);
+  try {
+    const apiFeatures = new APIFeatures(
+      productModel.find(),
+      req.query
+    ).filter();
+    const data = await apiFeatures.query;
+    const originalProducts = [...data];
+    const products = originalProducts.map(
+      (product) =>
+        new Object({
+          name: product.name,
+          description: product.description,
+          price: product.price,
+          imageSrc: product.image,
+        })
+    );
+    res.status(200).json({
+      status: "success",
+      totalObjects: products.length,
+      products,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "something went wrong" });
+  }
+};
