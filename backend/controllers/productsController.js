@@ -83,3 +83,12 @@ exports.searchProduct = async (req, res) => {
     res.status(500).json({ message: "something went wrong" });
   }
 };
+
+exports.updateProduct = async (req, res, next) => {
+  try {
+    const data = await productModel.findByIdAndUpdate(req.params.id, req.body);
+    res.status(200).json({ message: "success", data });
+  } catch (err) {
+    res.status(500).json({ message: "something went wrong" });
+  }
+};
